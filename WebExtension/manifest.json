@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "NXEnhanced",
+  "version": "2.1.0",
+  "description": "Advanced NextDNS management with AI-powered features",
+  "permissions": ["storage", "scripting"],
+  "host_permissions": [
+    "*://my.nextdns.io/*",
+    "https://api.nextdns.io/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://my.nextdns.io/*"],
+      "js": ["dist/content.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "dist/background.js"
+  },
+  "options_ui": { "page": "options-page.html" },
+  "action": {
+    "default_title": "NXEnhanced",
+    "default_icon": {
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

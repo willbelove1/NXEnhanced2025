@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NXEnhanced Control</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      width: 450px;
+      min-height: 300px;
+      max-height: 580px;
+      overflow-y: auto;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body::-webkit-scrollbar { width: 8px; }
+    body::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    body::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+    body::-webkit-scrollbar-thumb:hover { background: #555; }
+    .section-title { border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; margin-bottom: 1rem; font-size: 1.125rem; font-weight: 600; }
+    .btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; transition: background-color 0.2s; cursor: pointer; text-align: center; }
+    .btn-primary { background-color: #3b82f6; color: white; }
+    .btn-primary:hover { background-color: #2563eb; }
+    .btn-primary:disabled { background-color: #9ca3af; cursor: not-allowed; } /* gray-400 */
+    .btn-secondary { background-color: #6b7280; color: white; }
+    .btn-secondary:hover { background-color: #4b5563; }
+    .form-input, .form-textarea { border: 1px solid #d1d5db; padding: 0.5rem 0.75rem; border-radius: 0.375rem; width: 100%; font-size: 0.875rem; }
+    .form-input:focus, .form-textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); }
+    .status-success { color: #10b981; font-size: 0.875rem; }
+    .status-error { color: #ef4444; font-size: 0.875rem; }
+    .status-info { color: #3b82f6; font-size: 0.875rem; }
+    .result-text { white-space: pre-wrap; word-break: break-word; max-height: 150px; overflow-y: auto; background-color: #f9fafb; padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #e5e7eb; font-size: 0.8rem; }
+    .popup-notification { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%) translateY(100%); padding: 0.75rem 1.25rem; border-radius: 0.375rem; color: white; z-index: 100; opacity: 0; transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; font-size: 0.875rem; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .popup-notification.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .popup-notification.success { background-color: #10b981; }
+    .popup-notification.error { background-color: #ef4444; }
+    .popup-notification.info { background-color: #3b82f6; }
+
+    /* Dark Mode Styles */
+    body.dark { background-color: #1f2937; color: #d1d5db; }
+    body.dark ::-webkit-scrollbar-track { background: #374151; }
+    body.dark ::-webkit-scrollbar-thumb { background: #6b7280; }
+    body.dark ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    body.dark .section-title { border-bottom-color: #4b5563; color: #9ca3af; } /* Lighter title color for dark mode */
+    body.dark .form-input, body.dark .form-textarea { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+    body.dark .form-input::placeholder, body.dark .form-textarea::placeholder { color: #9ca3af; }
+    body.dark .result-text { background-color: #374151; border-color: #4b5563; color: #d1d5db;}
+    body.dark .btn-primary { background-color: #2563eb; }
+    body.dark .btn-primary:hover { background-color: #1d4ed8; }
+    body.dark .btn-primary:disabled { background-color: #4b5563; } /* Darker disabled for dark mode */
+    body.dark .btn-secondary { background-color: #4b5563; }
+    body.dark .btn-secondary:hover { background-color: #374151; }
+    body.dark .status-success { color: #34d399; }
+    body.dark .status-error { color: #f87171; }
+    body.dark .status-info { color: #60a5fa; }
+    body.dark .popup-notification.success { background-color: #059669; }
+    body.dark .popup-notification.error { background-color: #dc2626; }
+    body.dark .popup-notification.info { background-color: #2563eb; }
+    /* Toggle Switch Dark Mode */
+    body.dark .toggle-label { background-color: #4b5563; }
+    body.dark .toggle-checkbox:checked { border-color: #60a5fa; }
+    body.dark .toggle-checkbox:checked + .toggle-label { background-color: #60a5fa; }
+    body.dark h1 { color: #60a5fa; } /* Lighter main title for dark mode */
+    body.dark footer a { color: #60a5fa; }
+    body.dark footer a:hover { color: #93c5fd; /* lighter blue-300 */ }
+  </style>
+</head>
+<body class="bg-gray-100 p-4 text-gray-800">
+
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-center text-blue-600">NXEnhanced</h1>
+  </header>
+
+  <div id="popupNotification" class="popup-notification"></div>
+
+  <section class="mb-6">
+    <h2 class="section-title text-gray-700">General</h2>
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <label for="darkModeToggle" class="text-sm font-medium text-gray-700 body.dark:text-gray-300">Dark Mode</label>
+        <div class="relative inline-block w-10 mr-2 align-middle select-none">
+            <input type="checkbox" name="darkModeToggle" id="darkModeToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-colors duration-200 ease-in-out"/>
+            <label for="darkModeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+        </div>
+        <style>
+            /* General Toggle Styles */
+            .toggle-checkbox { right: 1rem; /* Default to off position */ transition: right 0.2s ease-in-out, border-color 0.2s ease-in-out, background-color 0.2s ease-in-out; }
+            .toggle-checkbox:checked { right: 0rem; border-color: #3b82f6; /* Tailwind blue-500 */ }
+            .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; /* Tailwind blue-500 */ }
+            .toggle-label { transition: background-color 0.2s ease-in-out; }
+            /* Dark mode specific for toggle if needed, assuming body.dark .toggle-label and body.dark .toggle-checkbox:checked are defined above */
+        </style>
+      </div>
+      <button id="openOptionsPage" class="w-full btn btn-secondary text-sm">More Settings</button>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="section-title text-gray-700">Configuration</h2>
+    <div class="grid grid-cols-2 gap-3">
+      <button id="exportBtn" class="btn btn-primary text-sm">Export Config</button>
+      <label for="importBtn" class="btn btn-primary text-sm cursor-pointer">
+        Import Config
+        <input type="file" id="importBtn" class="hidden" accept=".json">
+      </label>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="section-title text-gray-700">API Keys</h2>
+    <div class="space-y-3">
+      <div>
+        <label for="nextdnsApiToken" class="block text-sm font-medium mb-1 text-gray-700 body.dark:text-gray-300">NextDNS API Token <span class="text-xs text-gray-500 body.dark:text-gray-400">(for Allow/Deny, etc.)</span></label>
+        <input type="password" id="nextdnsApiToken" class="form-input" placeholder="Enter NextDNS API Token">
+        <span id="nextdnsApiKeyStatus" class="text-xs mt-1 block"></span> <!-- Status for NextDNS key -->
+      </div>
+      <div>
+        <label for="geminiApiKey" class="block text-sm font-medium mb-1 text-gray-700 body.dark:text-gray-300">Gemini API Key <span class="text-xs text-gray-500 body.dark:text-gray-400">(for AI features)</span></label>
+        <input type="password" id="geminiApiKey" class="form-input" placeholder="Enter Gemini API Key">
+        <span id="geminiApiKeyStatus" class="text-xs mt-1 block"></span> <!-- Status for Gemini key -->
+      </div>
+      <button id="saveApiKeysBtn" class="w-full btn btn-primary text-sm">Save API Keys</button>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="section-title text-gray-700">AI Log Analysis (Gemini)</h2>
+    <div class="space-y-3">
+      <div>
+        <label for="logsInput" class="block text-sm font-medium mb-1 text-gray-700 body.dark:text-gray-300">Paste Logs Here:</label>
+        <textarea id="logsInput" rows="4" class="form-textarea" placeholder="Paste NextDNS logs..."></textarea>
+      </div>
+      <button id="analyzeLogsBtn" class="w-full btn btn-primary text-sm">Analyze Logs with AI</button>
+      <div class="mt-2">
+        <h3 class="text-sm font-medium text-gray-700 body.dark:text-gray-300">Analysis Result:</h3>
+        <div id="analysisResult" class="mt-1 p-2 border rounded bg-gray-50 text-sm min-h-[50px] result-text">No analysis yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center mt-4">
+    <a href="https://my.nextdns.io" target="_blank" class="text-sm text-blue-600 hover:text-blue-700 hover:underline">Open NextDNS Dashboard</a>
+  </footer>
+
+  <script src="dist/popup.js" type="module"></script>
+</body>
+</html>
